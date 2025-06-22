@@ -1,0 +1,44 @@
+generator client{
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url = env("DATABASE_URL")
+}
+
+
+model Booking{
+    id String @id @default(uuid())
+    slotId String @unique
+    slot Slot @relation(fields:[slotId],references :[id])
+    userId String
+    user User @relation(fields:[userId],references:[id])
+    bookedAt DateTime @default(now())
+
+    @@unique([slotId,userId])
+}
+
+model User {
+    id  String @id @default(uuid())
+    name String
+    email String   @unique
+    bookings Booking[]
+}
+model Event{
+    id String           @id @default(uuid())
+    title String
+    description String?
+    slots Slot[]
+}
+
+model Slot{
+    id  String  @id @default(uuid())
+    start DateTime
+    end DateTime
+    eventId String
+    event Event @relation(fields:[eventId] , references :[id])
+    Booking Booking[]
+    maxBookings Int @default(1)
+}
+
